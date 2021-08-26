@@ -1,10 +1,10 @@
-from tensorflow.keras.utils import Sequence
+from tensorflow.keras.preprocessing.image import Iterator
 import cv2
 import numpy as np
 import random
 
 
-class VolumeDataGenerator(Sequence):
+class VolumeDataGenerator:
     def __init__(self,
                  samplewise_center=False,
                  samplewise_std_normalization=False,
@@ -168,26 +168,37 @@ class VolumeDataGenerator(Sequence):
 
         return trans_vol
 
-    def flow(self, x, y, batch_size):
-        while True:
-            x_gen = np.zeros((batch_size,) + x.shape[1:])
-            y_gen = np.zeros((batch_size,) + y.shape[1:])
-            inds = list(range(x.shape[0]))
-            if len(inds) < batch_size:
-                raise ValueError("Samples less than batch_size")
+    def apply_transformations(self, x, y):
+        self._set_params()
+        x_copy = np.copy(x)
+        y_copy = np.copy(y)
 
-            random.shuffle(inds)
-            counter = 0
+        preprocess_vol = self._preprocess_vol(x_copy)
+        x_copy = self._transform_vol(preprocess_vol)
+        y_copy = self._transform_vol(y_copy)
 
-            for i in inds[:batch_size]:
-                ind = i % x.shape[0]
-                self._set_params()
-                x_copy = np.copy(x[ind])
-                y_copy = np.copy(y[ind])
-                preprocess_vol = self._preprocess_vol(x_copy)
-                x_gen[counter] = self._transform_vol(preprocess_vol)
-                y_gen[counter] = self._transform_vol(y_copy)
-                y_gen[counter] = y_copy
-                counter += 1
+        return x_copy, y_copy
 
-            yield x_gen, y_gen
+    # Reworked method to return an Iterator and guarantee images are only presented once during training or validation in a given epoch
+    def flow(self, x, y, batch_size, shuffle, seed=None):
+        return VolumeArrayIterator(x, y, self, batch_size, shuffle, seed)        
+
+class VolumeArrayIterator(Iterator):
+    def __init__(self, x, y, volume_data_generator, batch_size, shuffle, seed):
+        super(VolumeArrayIterator, self).__init__(len(x), batch_size, shuffle, seed)
+        self.x, self.y = x, y
+        self.batch_size = batch_size
+        self.volume_data_generator = volume_data_generator
+
+    def _get_batches_of_transformed_samples(self, index_array):
+        batch_x = np.zeros((self.batch_size,) + self.x.shape[1:])
+        batch_y = np.zeros((self.batch_size,) + self.y.shape[1:])
+
+        for i, j in enumerate(index_array):
+            x, y = self.x[j], self.y[j]
+            x, y = self.volume_data_generator.apply_transformations(x, y)
+
+            batch_x[i] = x
+            batch_y[i] = y
+
+        return batch_x, batch_y
