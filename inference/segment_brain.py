@@ -7,7 +7,7 @@ import sys
 from PIL import Image
 
 # Will need to be adjusted depending on the GPU
-batch_size = 15
+batch_size = 16
 
 # Don't run network on chunks which don't have a value above threshold
 threshold = 0.01
@@ -120,7 +120,7 @@ def segment_brain(input_folder, output_folder, model):
         # Read section of folder
         section = read_folder_section(input_folder, section_index, section_index + input_dim).astype('float32')
 
-        # Make the volume pixel intensity between 0 and 1
+        # Make the volume pixel intensity between 0 and 1, since min-max normalization is used during training
         section_vol = section / (2 ** 16 - 1)
 
         # Get the segmentation of this chunk

@@ -194,7 +194,7 @@ def get_net():
     preds = Conv3D(1, (1, 1, 1), activation="sigmoid")(batch7)
     model = Model(inputs=input, outputs=preds)
 
-    model.compile(optimizer=Adam(lr=0.001, decay=0.00), loss=weighted_binary_crossentropy,
+    model.compile(optimizer=Adam(lr=1e-4, decay=0.00), loss=weighted_binary_crossentropy,
                   metrics=[axon_precision, axon_recall, f1_score, artifact_precision, edge_axon_precision, adjusted_accuracy])
 
     return model
