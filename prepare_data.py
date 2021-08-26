@@ -65,5 +65,42 @@ if __name__ == "__main__":
             edge_vol = process_labels(vol)
             write_tiff_stack(edge_vol, os.path.join(output_folder, label_name))
 
+    # Generates random 3D subvolumes of raw data for annotation
+    elif sys.argv[1] == "generate_annotation_subvolumes":
+        if len(sys.argv) < 4:
+            raise Exception("You must include input and output directories")
+
+        raw_dir = sys.argv[2]
+        output_dir = sys.argv[3]
+        
+        # Default value for lateral edges is 200px
+        cube_length = 200
+        if sys.argv[4]:
+            cube_length = int(sys.argv[4])
+
+        if not os.path.isdir(raw_dir):
+            raise Exception(raw_dir + " is not a directory. Inputs must be a folder of tiff files. Please refer to readme for more info")
+
+        if not os.path.isdir(output_dir):
+            raise Exception(output_dir + " is not a directory. Inputs must be a folder of tiff files. Please refer to readme for more info")
+
+        coords = [('file', 'x', 'y')]
+
+        for raw_vol in os.listdir(raw_dir):
+            vol = read_tiff_stack(os.path.join(raw_dir, raw_vol))
+
+            z, x, y = vol.shape
+            shape = (cube_length, cube_length, z)
+
+            x = np.random.randint(0, x-cube_length)
+            y = np.random.randint(0, y-cube_length)
+
+            sub_vol = crop_box(x, y, 0, vol, shape)
+            write_tiff_stack(sub_vol, os.path.join(output_dir, raw_vol))
+            
+            coords.append((raw_vol, x, y))
+        
+        np.savetxt(os.path.join(raw_dir, "crop-coords.csv"), coords, fmt='%s', delimiter=",")
+
     else:
         raise Exception("You must choose your type of preparation (generate_validation_set, generate_training_set, process_labels)")
