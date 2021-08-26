@@ -1,7 +1,41 @@
 
-# TRAILMAP
+# TRAILMAP fork
+Thank you to the original authors for creating this package. Friedmann D, Pun A, et al. [https://github.com/AlbertPun/TRAILMAP](https://github.com/AlbertPun/TRAILMAP).  
 
-![Figure Image](https://www.biorxiv.org/content/biorxiv/early/2019/10/21/812644/F3.large.jpg?width=800&height=600&carousel=1)
+## Changes and enhancements
+This forked repo of TRAILMAP adds:
+
+- Entry point to generate random 3D crops of raw data in `prepare_data.py`
+
+    Instead of manually cropping 3D subvolumes of raw data for annotation, run
+
+    ```python
+    python3 prepare_data.py "generate_annotation_subvolumes" PATH_TO_RAW_FOLDER PATH_TO_OUTPUT_FOLDER CUBE_LENGTH
+    ```
+
+    where PATH_TO_RAW_FOLDER is the folder containing raw tiff volumes (data/training/training-raw) and PATH_TO_OUTPUT_FOLDER (data/training/training-original/volumes) is the target folder where subvolumes will be stored for annotation. The CUBE_LENGTH parameter defaults to 200px as specified in the original TrailMap documentation. This will output a csv file of the x, y coordinates used to crop these volumes.
+
+and changes:
+
+- `VolumeDataGenerator`
+
+    No longer inherits from `tensorflow.keras.utils.Sequence`. `flow` method modified to return a `VolumeArrayIterator` which inherits from `tensorflow.keras.preprocessing.image.Iterator`. This ensures all images are presented once and only once per epoch. This allows many arguments passed to `model.fit` to be removed.
+
+ - Remove augmentation of validation set. Training and validation sets now have unique data generators.
+
+
+## Model Parameters
+Our best model was trained from scratch on a Nvidia RTX 3070 GPU with the following parameters:
+| Parameter              | Value  |
+| -----------------------| ------ |
+| `batch_size`           | `6`    |
+| `learning_rate`        | `1e-4` |
+| `decay`                | `0`    |
+
+
+<hr>
+
+# TRAILMAP original README
 
 This is a software package to extract axonal data from cleared brains as demonstrated in [Mapping Mesoscale Axonal Projections in the Mouse Brain Using A 3D Convolutional Network](https://www.biorxiv.org/content/10.1101/812644v1.full) Friedmann D, Pun A, et al. While it was trained and tested on axons in iDISCO-cleared samples imaged by lightsheet microscopy, it works well at identifying many types of filamentous structures in 3D volumes. Instructions are included for segmenting your data with our best existing model, but we also provide guidance on transfer learning with your own annotated data.
 
