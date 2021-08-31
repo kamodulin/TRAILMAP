@@ -25,10 +25,11 @@ and changes:
 
 
 ## Model Parameters
-Our best model was trained from scratch on a Nvidia RTX 3070 GPU with the following parameters:
+Our best model ([Google Drive download](https://drive.google.com/file/d/1VhIkSqsb_hsEg2eSJ3UtHnAeLX2H9z8s/view?usp=sharing)) was trained from scratch on a Nvidia RTX 3070 GPU with the following parameters:
 | Parameter              | Value  |
 | -----------------------| ------ |
 | `batch_size`           | `6`    |
+| `epochs`               | `22`   |
 | `learning_rate`        | `1e-4` |
 | `decay`                | `0`    |
 
