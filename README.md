@@ -25,7 +25,7 @@ and changes:
 
 
 ## Model Parameters
-Our best model ([Google Drive download](https://drive.google.com/file/d/1VhIkSqsb_hsEg2eSJ3UtHnAeLX2H9z8s/view?usp=sharing)) was trained from scratch on a Nvidia RTX 3070 GPU with the following parameters:
+Our best model ([download](https://github.com/kamodulin/TRAILMAP/releases/download/1.0/best_weights_checkpoint.hdf5)) was trained from scratch on a Nvidia RTX 3070 GPU with the following parameters:
 | Parameter              | Value  |
 | -----------------------| ------ |
 | `batch_size`           | `6`    |
